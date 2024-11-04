@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Chat Application</h1>
+        <input type="text" id="userinp" placeholder="Enter your username first to chat and connect to the server">
+        <button type="submit" onclick="connectToServer()">Connect</button>
+    <ul id="messages"></ul>
+    <form action="" id="form">
+        <input type="text" id="input" autocomplete="off" placeholder="Type a message">
+        <button type="submit">Send</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io({autoConnect: false});
+        let userName;
+        function connectToServer(){
+            console.log("here")
+            socket.connect(); // manually connect to the server
+            const input = document.getElementById('userinp');
+            userName = input.value;
+            socket.emit('manual_connection',userName)
+        }
+
+        socket.on('connection_success',(msg) => {
+            console.log(`Connection Successfull`,msg);
+        })
+
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const message = document.getElementById('messages');
+
+        form.addEventListener('submit', (e)=>{
+            e.preventDefault();
+            if(input.value){
+                socket.emit('chat message',{message:input.value,userName:userName});
+                input.value = '';
+            }
+        });
+
+        socket.on('chat message',(msg) => {
+            const item = document.createElement('li');
+            item.textContent = `${msg.userName} : ${msg.message}`;
+            message.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight,'smooth');
+        });
+    </script>
+</body>
+</html>
