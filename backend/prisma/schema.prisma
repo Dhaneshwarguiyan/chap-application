@@ -24,15 +24,18 @@ model User {
   lastLogin      DateTime?
   profilePicture String?
 
-  messages Message[] // One-to-many relationship with Message
+  messagesSent     Message[] @relation("SenderMessages") // One-to-many relationship with Message
+  messagesReceived Message[] @relation("ReceiverMessages") // One-to-many relationship with Message
 }
 
 model Message {
-  id             Int      @id @default(autoincrement())
-  content        String //content of the message
-  senderId       Int
-  createdAt      DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  content    String
+  timestamp  DateTime @default(now())
+  isRead     Boolean  @default(false)
 
-  //relation
-  sender         User @relation(fields: [senderId], references: [id]) // Relationship to User
+  sender   User @relation("SenderMessages", fields: [senderId], references: [id])
+  receiver User @relation("ReceiverMessages", fields: [receiverId], references: [id])
 }

@@ -1,24 +1,48 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../utils/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
-const Login = ({ setUsername }) => {
+const Login = () => {
+  const navigate = useNavigate();
+  const { setLogin, setUserId } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  useEffect(()=>{
+    const login = localStorage.getItem("status");
+    if(login === "true"){
+      navigate('/people')
+    }
+  },[])
+
+
   const submitHandler = async () => {
     try {
-      const response = await axios.post("http://localhost:3000/api/v1/signin", {
-        email: formData.email,
-        password: formData.password,
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/v1/signin",
+        {
+          email: formData.email,
+          password: formData.password,
+        },
+        { withCredentials: true }
+      );
       setTimeout(() => {
-        setUsername(response.data.data.username);
+        setLogin(true);
       }, 1000);
-      toast(response.data.message);
-      toast(`welcome ${response.data.data.username}`);
+      setUserId(response.data.userId);
+      //for persistent login
+      localStorage.setItem("status", true);
+      localStorage.setItem("userId",response.data.userId);
+      //for changing the page in case of change of the variable in login
+      // toast("hello")
+      toast(`welcome ${response.data.userId}`);
+
     } catch (error) {
       console.log(error);
     }

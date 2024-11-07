@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router-dom";
-const Profile = ({ username,email,setReceiver }) => {
+import { useContext } from "react";
+import { AuthContext } from "../utils/AuthProvider";
+
+const Profile = ({ id,username,email}) => {
   const navigate = useNavigate();
+  const {setReceiverId} = useContext(AuthContext);
   const clickHandler = ()=>{
-    setReceiver(username);
+    setReceiverId(id);
     navigate('/chat');
   }
   return (
